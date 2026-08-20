@@ -1,4 +1,4 @@
-package xyz.jdynb.music.ui.fragment.download
+package xyz.jdynb.music.ui.fragment.local
 
 import android.util.Log
 import androidx.core.os.bundleOf
@@ -10,7 +10,6 @@ import com.drake.net.utils.scope
 import com.drake.net.utils.withIO
 import kotlinx.coroutines.launch
 import org.litepal.LitePal
-import org.litepal.extension.find
 import xyz.jdynb.music.R
 import xyz.jdynb.music.base.BaseMusicNavFragment
 import xyz.jdynb.music.databinding.FragmentDownloadListBinding
@@ -22,8 +21,19 @@ class DownloadListFragment : BaseMusicNavFragment<FragmentDownloadListBinding>(R
 
     private const val TAG= "DownloadListFragment"
 
+    /**
+     * 本地
+     */
+    const val TYPE_LOCAL = -1
+
+    /**
+     * 全部下载
+     */
     const val TYPE_ALL = 0
 
+    /**
+     * 已下载
+     */
     const val TYPE_DOWNLOADED = 1
 
     /**
@@ -41,7 +51,6 @@ class DownloadListFragment : BaseMusicNavFragment<FragmentDownloadListBinding>(R
   override fun initView() {
 
     binding.page.onRefresh {
-      // Support refresh operation
       scope {
         val data = withIO {
           loadDownloads()
@@ -57,7 +66,6 @@ class DownloadListFragment : BaseMusicNavFragment<FragmentDownloadListBinding>(R
     binding.rvDownload.linear().setup {
       addType<DownloadModel>(R.layout.item_list_download)
 
-      // Pause/Resume button click
       R.id.btn_pause_resume.onClick {
         val model = getModel<DownloadModel>()
         when (model.status) {
@@ -71,7 +79,6 @@ class DownloadListFragment : BaseMusicNavFragment<FragmentDownloadListBinding>(R
         }
       }
 
-      // Cancel button click
       R.id.btn_cancel.onClick {
         val model = getModel<DownloadModel>()
         downloadService?.cancelDownload(model.musicId)
@@ -79,13 +86,11 @@ class DownloadListFragment : BaseMusicNavFragment<FragmentDownloadListBinding>(R
         notifyItemRemoved(modelPosition)
       }
 
-      // Retry button click
      R.id.btn_retry.onClick {
         val model = getModel<DownloadModel>()
         downloadService?.retryDownload(model.musicId)
       }
 
-      // Delete button click
       R.id.btn_delete.onClick {
         val model = getModel<DownloadModel>()
         downloadService?.deleteDownload(model.musicId)
@@ -105,7 +110,7 @@ class DownloadListFragment : BaseMusicNavFragment<FragmentDownloadListBinding>(R
   }
 
   /**
-   * Load downloads based on type
+   * 基于类型加载本地歌曲
    */
   private fun loadDownloads(): List<DownloadModel> {
     val type = arguments?.getInt("type") ?: TYPE_ALL
@@ -121,7 +126,7 @@ class DownloadListFragment : BaseMusicNavFragment<FragmentDownloadListBinding>(R
   }
 
   /**
-   * Observe download progress from DownloadService
+   * 订阅下载进度
    */
   private fun observeDownloadProgress() {
     viewLifecycleOwner.lifecycleScope.launch {

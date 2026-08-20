@@ -1,9 +1,7 @@
 package xyz.jdynb.music.config
 
-import xyz.jdynb.music.BuildConfig
-
 object Api {
-  val BASE_API: String = if (BuildConfig.DEBUG) {
+  val BASE_API: String = if (/*BuildConfig.DEBUG*/false) {
     "http://192.168.31.140:8080"
   } else {
     "http://music.jdynb.xyz"

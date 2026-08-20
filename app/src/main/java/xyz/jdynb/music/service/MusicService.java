@@ -44,9 +44,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 import org.litepal.LitePal;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import xyz.jdynb.music.MusicKillerApplication;
 import xyz.jdynb.music.R;
@@ -55,7 +52,6 @@ import xyz.jdynb.music.constants.IntentActions;
 import xyz.jdynb.music.constants.IntentExtras;
 import xyz.jdynb.music.model.FavoriteModel;
 import xyz.jdynb.music.model.MusicModel;
-import xyz.jdynb.music.model.PlayHistory;
 import xyz.jdynb.music.model.PlayInfo;
 import xyz.jdynb.music.ui.activity.MainActivity;
 import xyz.jdynb.music.utils.PlayUtilsKt;
@@ -360,12 +356,27 @@ public class MusicService extends MediaSessionService implements Player.Listener
             urlRequest.addQuery("bridge", bridge, false);
             PlayInfo playInfo = urlRequest.execute(PlayInfo.class);
 
-            Log.i(TAG, "playInfo: " + playInfo);
+            // Log.i(TAG, "playInfo: " + playInfo);
 
-            return new DataSpec.Builder()
+            if (playInfo == null || playInfo.getUrl().isEmpty()) {
+                throw new IOException("Play url is empty, id=" + id + ", bridge=" + bridge);
+            }
+
+            return dataSpec.buildUpon()
                     .setUri(playInfo.getUrl())
-                    .setKey(id) // 使用 ID 作为缓存 Key
+                    .setKey(buildCacheKey(id, bridge, playInfo))
                     .build();
+        }
+
+        private String buildCacheKey(String id, String bridge, PlayInfo playInfo) {
+            return "music:"
+                    + id
+                    + ":bridge:" + bridge
+                    + ":source:" + playInfo.getSource()
+                    + ":format:" + playInfo.getFormat()
+                    + ":bitrate:" + playInfo.getBitrate()
+                    + ":duration:" + playInfo.getDuration()
+                    + ":type:" + playInfo.getType();
         }
     }
 

@@ -165,13 +165,13 @@
 
     <fragment
         android:id="@+id/downloadFragment"
-        android:name="xyz.jdynb.music.ui.fragment.download.DownloadFragment"
+        android:name="xyz.jdynb.music.ui.fragment.local.LocalFragment"
         android:label="下载列表"
-        tools:layout="@layout/fragment_download" />
+        tools:layout="@layout/fragment_local" />
 
     <fragment
         android:id="@+id/downloadedFragment"
-        android:name="xyz.jdynb.music.ui.fragment.download.DownloadedFragment"
+        android:name="xyz.jdynb.music.ui.fragment.local.DownloadedFragment"
         android:label="已下载歌曲"
         tools:layout="@layout/fragment_downloaded" />
 

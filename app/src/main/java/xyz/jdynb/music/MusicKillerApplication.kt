@@ -112,6 +112,8 @@ class MusicKillerApplication : Application() {
             // 平台信息
             request.addHeader("Platform", "android")
 
+            request.addHeader("API-Key", "test")
+
             // 安全请求头
             val timestamp = System.currentTimeMillis().toString()
             request.addHeader("Timestamp", timestamp)

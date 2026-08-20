@@ -17,7 +17,6 @@ import com.drake.tooltip.toast
 import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.launch
 import org.litepal.LitePal
-import org.litepal.extension.find
 import xyz.jdynb.music.R
 import xyz.jdynb.music.base.BaseMusicNavFragment
 import xyz.jdynb.music.databinding.FragmentMusicPlayBinding
@@ -90,7 +89,6 @@ class MusicPlayFragment :
       // 更新进度
       musicInfo.currentPosition = currentPosition
       mainViewModel.updateCurrentPosition(currentPosition)
-      // 修正进度条最大值
 
       if (mediaController.isPlaying) {
         // 循环调用更新进度
@@ -125,19 +123,20 @@ class MusicPlayFragment :
       }
     }
 
-    if (getString(R.string.open_auto_play).getRequired<Boolean>(false)) {
-      // 加载最近播放的歌曲
-      scope {
-        val playList = withIO {
-          val defaultMaxPlayCount = resources.getInteger(R.integer.default_max_play_count)
-          val histories = LitePal.order("updateTime desc").limit(defaultMaxPlayCount).find<PlayHistory>()
-          if (histories.isEmpty()) return@withIO emptyList()
-          val size = min(getString(R.string.max_play_count).getRequired<Int>(defaultMaxPlayCount), histories.size)
-          histories.subList(0, size).map { it.toMusicModel() }
-        }
+    // 加载最近播放的歌曲
+    scope {
+      val playList = withIO {
+        val defaultMaxPlayCount = resources.getInteger(R.integer.default_max_play_count)
+        val histories = LitePal.order("updateTime desc").limit(defaultMaxPlayCount).find<PlayHistory>()
+        if (histories.isEmpty()) return@withIO emptyList()
+        val size = min(getString(R.string.max_play_count).getRequired<Int>(defaultMaxPlayCount), histories.size)
+        histories.subList(0, size).map { it.toMusicModel() }
+      }
+
+      if (getString(R.string.open_auto_play).getRequired<Boolean>(false)) {
         if (playList.isNotEmpty()) {
           mainViewModel.updateMusicModel(playList.first())
-          addPlaylist(playList)
+          addPlaylist(playList, play = false)
         }
       }
     }
@@ -243,7 +242,7 @@ class MusicPlayFragment :
    */
   override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
     Log.i(TAG, "onMediaItemTransition")
-    binding.musicSeekbar.max = mediaItem?.mediaMetadata?.extras?.getInt("duration") ?: 0
+    // binding.musicSeekbar.max = mediaItem?.mediaMetadata?.extras?.getInt("duration") ?: 0
     // Log.i(TAG, "metaData: ${mediaController.duration}") // C.TIME_UNSET 媒体未准备返回这个
     binding.musicSeekbar.setProgress(0, true)
     binding.m =

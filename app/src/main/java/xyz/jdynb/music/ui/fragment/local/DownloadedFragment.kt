@@ -1,9 +1,8 @@
-package xyz.jdynb.music.ui.fragment.download
+package xyz.jdynb.music.ui.fragment.local
 
 import com.drake.brv.utils.models
 import com.drake.net.utils.withIO
 import org.litepal.LitePal
-import org.litepal.extension.find
 import xyz.jdynb.music.R
 import xyz.jdynb.music.base.BaseMusicNavFragment
 import xyz.jdynb.music.databinding.FragmentDownloadedBinding
